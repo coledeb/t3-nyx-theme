@@ -95,6 +95,7 @@
   background-color: color-mix(in srgb, #05050f max(22%, var(--glass-opacity) * 1.9 - 90%), transparent) !important;
   background-image: none !important;
   backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
+  position: relative;
 }
 
 .dark [data-thread-item] [aria-current="page"] {
@@ -110,31 +111,6 @@
 
 .dark [data-chat-column]:not(:has(.messages-timeline-scroll)) [data-chat-header] {
   background: transparent !important;
-}
-
-.dark [data-chat-canvas]:not(:has(.messages-timeline-scroll)) [data-chat-composer-stack]::before {
-  content: "T3";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 100%;
-  margin-bottom: 0.24em;
-  z-index: -1;
-  padding: 0 0.12em 0 0.05em;
-  text-align: center;
-  font: 800 clamp(140px, min(19vw, 29vh), 280px) / 1 var(--font-sans);
-  letter-spacing: -0.07em;
-  white-space: nowrap;
-  color: transparent;
-  background: var(--nyx-grid), linear-gradient(170deg, #d2c8ff, #9aa6ff);
-  background-size: var(--nyx-dot) var(--nyx-dot), var(--nyx-dot) var(--nyx-dot), 100% 100%;
-  background-attachment: fixed, fixed, scroll;
-  background-position: right bottom, right bottom, 0 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  opacity: 0.5;
-  mix-blend-mode: plus-lighter;
-  pointer-events: none;
 }
 
 .dark [data-chat-canvas]:not(:has(.messages-timeline-scroll)) [data-chat-composer-stack]::after {
@@ -209,8 +185,7 @@
   box-shadow: inset 0 -8px 14px -10px #7864ff99, inset 0 1px 0 #ffffff14 !important;
 }
 
-.dark [data-chat-composer-form] button[class~="bg-message-action"]:not(:disabled),
-.dark [data-chat-composer-form] button[class~="bg-destructive/90"] {
+.dark [data-chat-composer-form] button[class~="bg-message-action"]:not(:disabled):not([class~="isolate"]) {
   background: radial-gradient(100% 60% at 50% 0%, #ffffff1f, #0000 70%), linear-gradient(150deg, var(--nyx-key)), #0d0b26 !important;
   box-shadow: inset 0 1px 0 #ffffff26, inset 0 -8px 14px -10px var(--nyx-key-glow), 0 0 0 1px var(--nyx-key-rim), 0 4px 14px -6px var(--nyx-key-glow) !important;
   color: #f1f0ff !important;
@@ -219,10 +194,79 @@
   --nyx-key-rim: #b4aaff33;
 }
 
+/* Send button: T3's Nightly orb (only drawn for built-in themes), under Nyx's glass. */
+.dark [data-chat-composer-form] button[class~="isolate"][class~="bg-message-action"] {
+  background:
+    radial-gradient(90% 55% at 50% 0%, #ffffff2e, #ffffff0a 55%, #0000 75%),
+    radial-gradient(120% 70% at 50% 110%, #a99fff40, #0000 65%),
+    url(__ORB__) center / cover,
+    #151443 !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 0 #ffffff33,
+    inset 0 -8px 14px -10px #a99fffcc,
+    0 0 0 1px #b4aaff38,
+    0 4px 14px -6px #a99fffb3 !important;
+  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.dark [data-chat-composer-form] button[class~="isolate"][class~="bg-message-action"]:hover:not(:disabled) {
+  filter: brightness(1.12) saturate(1.1);
+  box-shadow:
+    inset 0 1px 0 #ffffff40,
+    inset 0 -8px 14px -9px #c4bcffe6,
+    0 0 0 1px #b4aaff59,
+    0 4px 18px -5px #a99fffd9 !important;
+}
+
+.dark [data-chat-composer-form] button[class~="isolate"][class~="bg-message-action"]:active:not(:disabled) {
+  box-shadow: inset 0 2px 6px #0000006b, 0 0 0 1px #b4aaff38 !important;
+}
+
+.dark [data-chat-composer-form] button[class~="isolate"][class~="bg-message-action"]:disabled {
+  opacity: 0.64;
+  box-shadow: inset 0 1px 0 #ffffff1f, 0 0 0 1px #b4aaff1f !important;
+}
+
+/* Icons on the orb (send arrow, steer, queue, spinner) catch a little light. */
+.dark [data-chat-composer-form] button[class~="isolate"][class~="bg-message-action"]:not(:disabled) svg {
+  filter: drop-shadow(0 0 3px #c4bcffb3) drop-shadow(0 1px 1px #0000008c);
+}
+
+/* Stop button: same glass, in red. */
 .dark [data-chat-composer-form] button[class~="bg-destructive/90"] {
-  --nyx-key: #e0648f80, #e0648f26 60%, #a8325e26;
-  --nyx-key-glow: #ff7aa6cc;
-  --nyx-key-rim: #ff9ebf33;
+  background:
+    radial-gradient(90% 50% at 50% 0%, #ffffff26, #ffffff08 55%, #0000 75%),
+    radial-gradient(120% 70% at 50% 110%, #ff7aa64d, #0000 65%),
+    linear-gradient(160deg, #c83a5f, #8f1d40 55%, #4f0f2b) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 1px 0 #ffffff40,
+    inset 0 -8px 14px -10px #ffb3c9e6,
+    0 0 0 1px #ff9ebf47,
+    0 4px 14px -6px #ff6f9cb3 !important;
+  transition: filter 0.15s, box-shadow 0.15s, opacity 0.15s;
+}
+
+.dark [data-chat-composer-form] button[class~="bg-destructive/90"] svg {
+  filter: drop-shadow(0 0 3px #ffd1dfb3) drop-shadow(0 1px 1px #0000008c);
+}
+
+.dark [data-chat-composer-form] button[class~="bg-destructive/90"]:hover:not(:disabled) {
+  filter: brightness(1.1) saturate(1.1);
+  box-shadow:
+    inset 0 1px 0 #ffffff4d,
+    inset 0 -8px 14px -9px #ffc4d6f2,
+    0 0 0 1px #ff9ebf66,
+    0 4px 18px -5px #ff6f9cd9 !important;
+}
+
+.dark [data-chat-composer-form] button[class~="bg-destructive/90"]:active:not(:disabled) {
+  box-shadow: inset 0 2px 6px #00000073, 0 0 0 1px #ff9ebf47 !important;
+}
+
+.dark [data-chat-composer-form] button[class~="bg-destructive/90"]:disabled {
+  box-shadow: inset 0 1px 0 #ffffff26, 0 0 0 1px #ff9ebf26 !important;
 }
 
 .dark [data-slot="switch-thumb"] {
@@ -247,4 +291,216 @@
 
 .dark [data-app-modal] [style*="d) 72%"] {
   background-color: #a99fff !important;
+}
+
+.dark [data-composer-shortcut="composer.mode"]:not([aria-label="Permissions: Auto"]) {
+  padding-inline-end: 0.375rem !important;
+}
+
+.dark [data-composer-shortcut="composer.mode"]:not([aria-label="Permissions: Auto"]) [data-composer-control-label] {
+  display: none;
+}
+
+/* Model picker: providers as a top row, models below, then effort, then the controls row. */
+
+.dark :has(> [data-model-picker-effort]) {
+  flex-direction: column !important;
+  height: auto !important;
+  width: 100% !important;
+}
+
+.dark div:has(> div > [data-model-picker-effort]) {
+  width: 380px !important;
+  max-width: calc(100vw - 24px) !important;
+}
+
+.dark [data-model-picker-content] {
+  width: 100% !important;
+  max-width: none !important;
+  flex-direction: column !important;
+  max-height: 300px !important;
+}
+
+.dark [data-model-picker-content] > [data-model-picker-sidebar] {
+  width: 100% !important;
+  height: 40px !important;
+  flex: none !important;
+  border-bottom: 1px solid #b4aaff1f;
+}
+
+.dark [data-model-picker-sidebar] .min-h-full {
+  flex-direction: row !important;
+  min-height: 0 !important;
+  height: 100%;
+  align-items: center;
+  gap: 2px !important;
+  padding: 4px 6px !important;
+}
+
+.dark [data-model-picker-sidebar] [data-model-picker-provider] {
+  width: 32px !important;
+}
+
+.dark [data-model-picker-sidebar] [data-model-picker-provider] svg {
+  width: 17px !important;
+  height: 17px !important;
+}
+
+.dark [data-model-picker-provider="favorites"] svg,
+.dark [data-model-picker-provider="favorites"] svg * {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.6 !important;
+}
+
+.dark [data-model-picker-provider="favorites"] svg {
+  color: #9d9ab8 !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.dark [data-model-picker-provider="favorites"] [aria-pressed="true"] svg,
+.dark [data-model-picker-provider="favorites"] [aria-pressed="true"] svg * {
+  color: #b4aaff !important;
+  stroke: #b4aaff !important;
+  fill: #b4aaff !important;
+}
+
+.dark [data-model-picker-content] [data-model-picker-selected-indicator] {
+  display: none !important;
+}
+
+.dark [data-model-picker-content] > :last-child {
+  border-left: none !important;
+}
+
+.dark [data-model-picker-effort] {
+  width: 100% !important;
+  height: auto !important;
+  border-left: none !important;
+  border-top: 1px solid #b4aaff1f !important;
+  padding: 4px 10px 10px;
+  overflow-x: hidden !important;
+}
+
+.dark [data-model-picker-effort] *:not([data-effort-row]) {
+  border-color: transparent !important;
+}
+
+.dark [data-model-picker-effort] [role="radiogroup"]:has(> [data-effort-level]) {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  gap: 2px !important;
+  height: auto !important;
+  padding: 3px !important;
+  border-radius: 9px !important;
+  background: #b4aaff12 !important;
+}
+
+.dark [data-model-picker-effort] [data-effort-level] {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  min-width: max-content !important;
+  height: 26px !important;
+  justify-content: center !important;
+  padding: 0 10px !important;
+  white-space: nowrap;
+  border-radius: 7px !important;
+  font-size: 12px !important;
+  color: #a6a3c0 !important;
+  background: transparent !important;
+}
+
+.dark [data-model-picker-effort] [data-effort-level]:hover {
+  color: #f1f0ff !important;
+  background: #b4aaff14 !important;
+}
+
+.dark [data-model-picker-effort] [data-effort-level] > span:first-child {
+  flex: none !important;
+}
+
+.dark [data-model-picker-effort] [data-effort-level] > :not(:first-child) {
+  display: none !important;
+}
+
+.dark [data-model-picker-effort] [data-effort-level][aria-checked="true"] {
+  background: linear-gradient(90deg, #8a7fe84c, #6f8cff1a), #0d0b26 !important;
+  box-shadow: inset 0 -8px 14px -10px #7864ff99, inset 0 1px 0 #ffffff14 !important;
+  color: #e6e2ff !important;
+  font-weight: 500;
+}
+
+.dark [data-model-picker-effort] [data-effort-row]:not([data-effort-level]) {
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  margin-top: 6px;
+}
+
+.dark :has(> [data-model-picker-effort]) + * {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 8px 10px !important;
+}
+
+.dark :has(> [data-model-picker-effort]) + * * {
+  flex-wrap: nowrap !important;
+  white-space: nowrap;
+}
+
+.dark :has(> [data-model-picker-effort]) + * :is(button, [data-slot="button"]) {
+  font-size: 12.5px !important;
+  height: 28px !important;
+  padding: 0 8px !important;
+}
+
+.dark :has(> [data-model-picker-effort]) + * :has([data-composer-permissions-trigger]),
+.dark :has(> [data-model-picker-effort]) + * [data-composer-permissions-trigger] {
+  margin-left: auto !important;
+}
+
+.dark :has(> [data-model-picker-effort]) + * > * {
+  width: auto !important;
+  flex: 0 1 auto !important;
+  margin-top: 0 !important;
+}
+
+/* Sidebar header: T3's Nightly sky, which T3 only draws for built-in themes. It fades into Nyx's sidebar. */
+.dark [data-slot="sidebar-inner"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 80px;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(#05050f00 28%, #05050f1a 40%, #05050f4d 52%, #05050f94 64%, #05050fd1 75%, #05050ff5 85%, #05050f 93%), url(__SKY__) 0 0 / auto 100% no-repeat;
+  -webkit-mask-image: linear-gradient(#000 0% 55%, #0000 92%);
+  mask-image: linear-gradient(#000 0% 55%, #0000 92%);
+}
+
+/* Titlebar buttons (sidebar toggle, back, forward): all use the sidebar toggle's default hover. */
+.dark button:is([data-sidebar="trigger"], [aria-label="Go back"], [aria-label="Go forward"]):is(:hover, [data-pressed]):not(:disabled) {
+  /* Nyx's accent, written out: inside the sidebar T3 redefines --accent as an opaque mauve. */
+  background: #8a7fe824 !important;
+  box-shadow: none !important;
+}
+
+/* Chat cards that T3 draws nearly see-through (changed files, code blocks): a solid Nyx panel so text reads over the sky. */
+.dark [data-changed-files-state],
+.dark .chat-markdown-codeblock {
+  background: linear-gradient(135deg, #8a7fe814, #0000 60%), #0b0a1ed9 !important;
+  border: 1px solid #b4aaff1f !important;
+  box-shadow: 0 12px 30px -22px #000000e6;
+}
+
+.dark [data-changed-files-header] {
+  background: linear-gradient(90deg, #8a7fe81f, #6f8cff0a 60%, #0000), #0d0c22 !important;
+  border-bottom: 1px solid #b4aaff14;
+}
+
+.dark .chat-markdown [data-inline-code] {
+  background: #b4aaff24 !important;
 }

@@ -8,7 +8,7 @@ from art import build_art_data_url
 ROOT = Path(__file__).parent
 THEME_ID = "nyx"
 THEME_NAME = "Nyx"
-CSS_LIMIT = 20_000
+CSS_LIMIT = 50_000
 
 COLORS = {
     "canvas": "#000000",
@@ -68,7 +68,9 @@ def minify(css: str) -> str:
     css = re.sub(r'="([A-Za-z_][\w-]*)"\]', r"=\1]", css)
     css = re.sub(r'"[^"]*"', stash, css)
     css = re.sub(r"\s+", " ", css)
-    css = re.sub(r"\s*([{}:;,>])\s*", r"\1", css)
+    css = re.sub(r"\s*([{};,>])\s*", r"\1", css)
+    # A space before `:` is a descendant combinator in selectors (`.dark :has(...)`), so keep it.
+    css = re.sub(r":\s+", ":", css)
     css = re.sub(r"\s*!important", "!important", css)
     css = css.replace(";}", "}")
     css = re.sub(r"\btransparent\b", "#0000", css)
@@ -79,9 +81,55 @@ def minify(css: str) -> str:
     return css.strip()
 
 
+def split_rules(css: str) -> list[tuple[str, str]]:
+    rules, depth, start, brace = [], 0, 0, 0
+    for i, ch in enumerate(css):
+        if ch == "{":
+            if depth == 0:
+                brace = i
+            depth += 1
+        elif ch == "}":
+            depth -= 1
+            if depth == 0:
+                rules.append((css[start:brace], css[brace + 1 : i]))
+                start = i + 1
+    return rules
+
+
+def nest_dark(css: str) -> str:
+    """Fold runs of `.dark X` rules into one nested `.dark{X{...}}` block."""
+    out, run = [], []
+
+    def flush() -> None:
+        if run:
+            out.append(".dark{" + "".join(run) + "}")
+            run.clear()
+
+    for selector, body in split_rules(css):
+        parts = selector.split(",")
+        if all(p.startswith(".dark ") for p in parts):
+            # `&` keeps selectors like `:has(...)` from being read as declarations.
+            run.append(",".join("& " + p[6:] for p in parts) + "{" + body + "}")
+        else:
+            flush()
+            out.append(selector + "{" + body + "}")
+    flush()
+    return "".join(out)
+
+
+def svg_data_url(path: Path) -> str:
+    svg = re.sub(r"<!--.*?-->", "", path.read_text(), flags=re.S)
+    svg = re.sub(r">\s+<", "><", svg).strip().replace('"', "'")
+    for ch, code in (("%", "%25"), ("#", "%23"), ("<", "%3C"), (">", "%3E")):
+        svg = svg.replace(ch, code)
+    return f'"data:image/svg+xml,{svg}"'
+
+
 def build() -> dict:
-    css = minify((ROOT / "theme.css").read_text())
+    css = nest_dark(minify((ROOT / "theme.css").read_text()))
     css = css.replace("__ART__", build_art_data_url())
+    css = css.replace("__ORB__", svg_data_url(ROOT / "send-orb.svg"))
+    css = css.replace("__SKY__", svg_data_url(ROOT / "sidebar-sky.svg"))
     if len(css) > CSS_LIMIT:
         sys.exit(f"theme css is {len(css)} characters; T3 accepts at most {CSS_LIMIT}")
     return {"version": 1, "name": THEME_NAME, "appearance": "dark", "colors": COLORS, "css": css}
